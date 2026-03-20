@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication System - JWT</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">Auth System</h1>
+            <ul class="nav-links">
+                <li><a href="index.html" class="active">Home</a></li>
+                <li><a href="login.html" id="loginLink">Login</a></li>
+                <li><a href="register.html" id="registerLink">Register</a></li>
+                <li><a href="profile.html" id="profileLink" style="display:none;">Profile</a></li>
+                <li><button id="logoutBtn" class="logout-btn" style="display:none;">Logout</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="hero">
+            <h2>JWT Authentication System</h2>
+            <p>A secure authentication system with JWT tokens, password hashing, and protected routes</p>
+            
+            <div id="authStatus" class="auth-status" style="display:none;">
+                <p>Welcome, <span id="welcomeUser"></span>!</p>
+                <a href="profile.html" class="btn btn-primary">Go to Profile</a>
+            </div>
+
+            <div id="noAuthStatus" class="no-auth-status">
+                <p>Please log in or register to access your profile</p>
+                <div class="button-group">
+                    <a href="login.html" class="btn btn-primary">Login</a>
+                    <a href="register.html" class="btn btn-secondary">Register</a>
+                </div>
+            </div>
+
+            <div class="features">
+                <h3>Features</h3>
+                <ul>
+                    <li>✓ User Registration with validation</li>
+                    <li>✓ Secure Login with JWT tokens</li>
+                    <li>✓ Password hashing with Django's built-in system</li>
+                    <li>✓ Protected routes with JWT authentication</li>
+                    <li>✓ User profile management</li>
+                    <li>✓ Secure token storage in localStorage</li>
+                    <li>✓ Automatic token verification</li>
+                    <li>✓ Session management</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+
+            if (token && user) {
+                const userData = JSON.parse(user);
+                document.getElementById('welcomeUser').textContent = userData.username;
+                document.getElementById('authStatus').style.display = 'block';
+                document.getElementById('noAuthStatus').style.display = 'none';
+                document.getElementById('loginLink').style.display = 'none';
+                document.getElementById('registerLink').style.display = 'none';
+                document.getElementById('profileLink').style.display = 'block';
+                document.getElementById('logoutBtn').style.display = 'block';
+            }
+
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                logout();
+            });
+        });
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            document.getElementById('authStatus').style.display = 'none';
+            document.getElementById('noAuthStatus').style.display = 'block';
+            document.getElementById('loginLink').style.display = 'block';
+            document.getElementById('registerLink').style.display = 'block';
+            document.getElementById('profileLink').style.display = 'none';
+            document.getElementById('logoutBtn').style.display = 'none';
+            alert('Logged out successfully!');
+        }
+    </script>
+</body>
+</html>

@@ -22,3 +22,7 @@ urlpatterns += [
     path('', TemplateView.as_view(template_name='index.html')),
     path('<path:path>', TemplateView.as_view(template_name='index.html')),
 ]
+
+# Custom error handlers
+handler404 = 'django.views.defaults.page_not_found'
+handler500 = 'django.views.defaults.server_error'
