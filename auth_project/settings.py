@@ -117,7 +117,8 @@ CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='http://localhost:
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'auth_app.authentication.JWTAuthentication',
- 
+    ],
+}
 
 # Production Security Settings
 if not DEBUG:
@@ -127,5 +128,5 @@ if not DEBUG:
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_SECURITY_POLICY = {
         'default-src': ("'self'",),
-    }   ],
+    }
 }
