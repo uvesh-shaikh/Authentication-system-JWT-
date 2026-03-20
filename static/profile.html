@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Authentication System</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">Auth System</h1>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="profile.html" class="active">Profile</a></li>
+                <li><button id="logoutBtn" class="logout-btn">Logout</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="loadingMessage" class="loading">Loading profile...</div>
+        
+        <div id="profileContainer" style="display:none;">
+            <div class="profile-header">
+                <h2 id="profileUsername"></h2>
+                <p id="profileEmail"></p>
+            </div>
+
+            <div class="profile-content">
+                <div class="profile-section">
+                    <h3>Account Information</h3>
+                    <div class="info-group">
+                        <label>Username:</label>
+                        <p id="infoUsername"></p>
+                    </div>
+                    <div class="info-group">
+                        <label>Email:</label>
+                        <p id="infoEmail"></p>
+                    </div>
+                    <div class="info-group">
+                        <label>Member Since:</label>
+                        <p id="memberSince"></p>
+                    </div>
+                </div>
+
+                <div class="profile-section">
+                    <h3>Edit Profile</h3>
+                    <form id="editProfileForm">
+                        <div class="form-group">
+                            <label for="bio">Bio:</label>
+                            <textarea id="bio" name="bio" rows="4"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">Phone Number:</label>
+                            <input type="tel" id="phone" name="phone" placeholder="+1234567890">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                        <div id="updateMessage" class="error" style="display:none;"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="errorContainer" style="display:none;">
+            <p class="error">Please log in first to view your profile</p>
+            <a href="login.html" class="btn btn-primary">Go to Login</a>
+        </div>
+    </div>
+
+    <script src="/static/js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                document.getElementById('loadingMessage').style.display = 'none';
+                document.getElementById('errorContainer').style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/profile', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const user = data.user;
+                    const profile = data.profile;
+                    const created = new Date(profile.created_at).toLocaleDateString();
+
+                    document.getElementById('profileUsername').textContent = user.username;
+                    document.getElementById('profileEmail').textContent = user.email;
+                    document.getElementById('infoUsername').textContent = user.username;
+                    document.getElementById('infoEmail').textContent = user.email;
+                    document.getElementById('memberSince').textContent = created;
+                    document.getElementById('bio').value = profile.bio || '';
+                    document.getElementById('phone').value = profile.phone_number || '';
+
+                    document.getElementById('loadingMessage').style.display = 'none';
+                    document.getElementById('profileContainer').style.display = 'block';
+                } else {
+                    throw new Error(data.error || 'Failed to load profile');
+                }
+            } catch (error) {
+                document.getElementById('loadingMessage').style.display = 'none';
+                document.getElementById('errorContainer').style.display = 'block';
+                console.error('Error:', error);
+            }
+
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                alert('Logged out successfully!');
+                window.location.href = 'index.html';
+            });
+
+            document.getElementById('editProfileForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const bio = document.getElementById('bio').value;
+                const phone = document.getElementById('phone').value;
+
+                try {
+                    const response = await fetch('/api/update-profile', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            bio: bio,
+                            phone_number: phone
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        document.getElementById('updateMessage').textContent = data.message;
+                        document.getElementById('updateMessage').className = 'success';
+                        document.getElementById('updateMessage').style.display = 'block';
+                        setTimeout(() => {
+                            document.getElementById('updateMessage').style.display = 'none';
+                        }, 3000);
+                    } else {
+                        throw new Error(data.error);
+                    }
+                } catch (error) {
+                    document.getElementById('updateMessage').textContent = 'Error updating profile: ' + error.message;
+                    document.getElementById('updateMessage').className = 'error';
+                    document.getElementById('updateMessage').style.display = 'block';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
