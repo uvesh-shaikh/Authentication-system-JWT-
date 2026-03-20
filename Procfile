@@ -1,2 +1,2 @@
-web: gunicorn auth_project.wsgi
-release: python manage.py migrate
+web: gunicorn auth_project.wsgi:application
+release: python manage.py migrate --noinput
